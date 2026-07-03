@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>吉他指板音名训练</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #e8ecf1;
+    color: #2c3e50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    user-select: none;
+  }
+
+  .container {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 36px 40px 30px;
+    max-width: 1200px;
+    width: 92%;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.8em;
+    margin-bottom: 12px;
+    letter-spacing: 3px;
+    color: #34495e;
+  }
+  .title-sub {
+    text-align: center;
+    font-size: 0.78em;
+    color: #95a5a6;
+    margin-bottom: 16px;
+  }
+
+  /* ── 模式切换 ── */
+  .toggle-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .toggle-btn {
+    padding: 6px 20px;
+    border: 2px solid #d5dbdb;
+    border-radius: 20px;
+    background: #fff;
+    color: #7f8c8d;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .toggle-btn:hover {
+    border-color: #e74c3c;
+    color: #e74c3c;
+  }
+  .toggle-btn.active {
+    background: #e74c3c;
+    border-color: #e74c3c;
+    color: #fff;
+  }
+  .toggle-btn.active-subj {
+    background: #8e44ad;
+    border-color: #8e44ad;
+    color: #fff;
+  }
+  .toggle-btn.active-subj:hover {
+    border-color: #8e44ad;
+    color: #8e44ad;
+    background: #f4ecf7;
+  }
+  .toggle-btn-sm {
+    padding: 4px 14px;
+    font-size: 0.82em;
+  }
+
+  /* ── 分数面板 ── */
+  .score-panel {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin-bottom: 20px;
+  }
+  .score-item { text-align: center; min-width: 70px; }
+  .score-value {
+    font-size: 2.4em;
+    font-weight: bold;
+    color: #e74c3c;
+    line-height: 1.1;
+  }
+  .score-label {
+    font-size: 0.78em;
+    color: #95a5a6;
+    margin-top: 2px;
+  }
+  .accuracy-badge {
+    display: inline-block;
+    color: #fff;
+    background: #e74c3c;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 2.4em;
+    line-height: 1.1;
+    min-width: 80px;
+    text-align: center;
+    transition: background 0.3s;
+  }
+
+  /* ── 生命值（挑战模式） ── */
+  .lives-display {
+    font-size: 2em;
+    letter-spacing: 4px;
+    line-height: 1.1;
+  }
+
+  /* ── 倒计时条（挑战模式） ── */
+  .timer-bar {
+    height: 8px;
+    background: #ecf0f1;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .timer-fill {
+    height: 100%;
+    width: 100%;
+    border-radius: 4px;
+    background: #27ae60;
+    transition: none;
+  }
+  .timer-fill.warning { background: #f39c12; }
+  .timer-fill.danger  { background: #e74c3c; }
+
+  /* ── 调性信息（音级训练模式） ── */
+  .key-display {
+    text-align: center;
+    padding: 12px;
+    background: #fafafa;
+    border-radius: 12px;
+    border: 1px solid #ecf0f1;
+    margin-bottom: 14px;
+  }
+  .key-display .key-name {
+    font-size: 2.4em;
+    font-weight: bold;
+    color: #8e44ad;
+  }
+  .key-display .degree-name {
+    font-size: 2.4em;
+    font-weight: bold;
+    color: #e74c3c;
+  }
+  .key-display .key-hint {
+    font-size: 0.85em;
+    color: #95a5a6;
+    margin-top: 4px;
+  }
+
+  /* ── 调性选择器（音级训练模式） ── */
+  .key-selector {
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .key-sel-label {
+    font-size: 0.82em;
+    color: #95a5a6;
+    margin-bottom: 6px;
+  }
+  .key-sel-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+  }
+  .key-sel-btn {
+    padding: 4px 12px;
+    border: 2px solid #d5dbdb;
+    border-radius: 16px;
+    background: #fff;
+    color: #7f8c8d;
+    font-size: 0.82em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .key-sel-btn:hover {
+    border-color: #8e44ad;
+    color: #8e44ad;
+    background: #f4ecf7;
+  }
+  .key-sel-btn.active {
+    background: #8e44ad;
+    border-color: #8e44ad;
+    color: #fff;
+  }
+  .key-sel-btn.key-all {
+    border-color: #b0a89a;
+    color: #7f8c8d;
+  }
+  .key-sel-btn.key-all.active {
+    background: #7f8c8d;
+    border-color: #7f8c8d;
+    color: #fff;
+  }
+
+  /* ── 弦选择器 ── */
+  .string-selector {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+  .string-sel-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid #d5dbdb;
+    background: #fff;
+    color: #7f8c8d;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .string-sel-btn:hover {
+    border-color: #e74c3c;
+    color: #e74c3c;
+    background: #fdedec;
+  }
+  .string-sel-btn.active {
+    background: #e74c3c;
+    border-color: #e74c3c;
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(231,76,60,0.35);
+    transform: scale(1.08);
+  }
+  .string-sel-btn.all-btn {
+    width: auto;
+    padding: 8px 18px;
+    border-radius: 24px;
+    font-size: 0.95em;
+  }
+
+  .string-row.dimmed::before { opacity: 0.15; }
+  .string-row.dimmed .string-label { opacity: 0.25; }
+
+  /* ── 指板 ── */
+  .fretboard {
+    position: relative;
+    background: #f5f0e8;
+    border-radius: 12px;
+    padding: 8px 0 10px;
+    margin-bottom: 14px;
+    border: 1px solid #e0d8cc;
+  }
+
+  .string-row {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    position: relative;
+  }
+
+  .string-label {
+    width: 36px;
+    font-size: 1em;
+    font-weight: 900;
+    color: #7f8c8d;
+    flex-shrink: 0;
+    z-index: 2;
+  }
+
+  .fret-slots {
+    display: flex;
+    flex: 1;
+    position: relative;
+    border-left: 4px solid #d5cfc6;
+  }
+
+  .fret-cell {
+    flex: 1;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .fret-cell::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 1.5px;
+    background: #bfb8ad;
+    z-index: 1;
+  }
+  .fret-cell.last-fret::after { display: none; }
+
+  .string-row::before {
+    content: '';
+    position: absolute;
+    left: 30px;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    pointer-events: none;
+    background: #95a5a6;
+  }
+  .string-row:nth-child(1)::before { height: 3.2px; }
+  .string-row:nth-child(2)::before { height: 2.8px; }
+  .string-row:nth-child(3)::before { height: 2.4px; }
+  .string-row:nth-child(4)::before { height: 2.0px; }
+  .string-row:nth-child(5)::before { height: 1.6px; }
+  .string-row:nth-child(6)::before { height: 1.3px; }
+
+  .dot-marker {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #ccc;
+    border-radius: 50%;
+    z-index: 2;
+    pointer-events: none;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .dot-marker.single { top: 50%; }
+  .dot-marker.double-top { top: 22%; }
+  .dot-marker.double-bottom { bottom: 22%; top: auto; }
+
+  .highlight-dot {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: #e74c3c;
+    border-radius: 50%;
+    z-index: 4;
+    pointer-events: none;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 1.1s ease-in-out infinite;
+    box-shadow: 0 0 22px rgba(231,76,60,0.7);
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.85; }
+    50%      { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+  }
+
+  .fret-numbers {
+    display: flex;
+    padding-left: 30px;
+  }
+  .fret-num {
+    flex: 1;
+    text-align: center;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #8a8274;
+    height: 22px;
+    line-height: 22px;
+  }
+
+  .prompt-text {
+    text-align: center;
+    font-size: 1.25em;
+    margin-bottom: 10px;
+    color: #555;
+  }
+  .prompt-text em {
+    color: #e74c3c;
+    font-style: normal;
+    font-weight: bold;
+  }
+  .prompt-text .key-em {
+    color: #8e44ad;
+  }
+
+  .feedback {
+    text-align: center;
+    min-height: 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    transition: all 0.15s;
+  }
+  .feedback.ok  { color: #27ae60; }
+  .feedback.err { color: #e74c3c; }
+  .feedback.timeout { color: #f39c12; }
+
+  .note-buttons {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 7px;
+    margin-bottom: 18px;
+  }
+
+  /* ── 键盘输入（音级训练模式） ── */
+  .scale-input {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .scale-input input {
+    width: 200px;
+    height: 52px;
+    padding: 0 20px;
+    border: 2px solid #d5dbdb;
+    border-radius: 12px;
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #2c3e50;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.15s;
+    letter-spacing: 2px;
+  }
+  .scale-input input:focus {
+    border-color: #8e44ad;
+  }
+  .scale-input input.flash-ok {
+    border-color: #2ecc71 !important;
+    background: #eafaf1;
+  }
+  .scale-input input.flash-err {
+    border-color: #e74c3c !important;
+    background: #fdedec;
+    animation: shake 0.35s ease-out;
+  }
+  .scale-input .input-hint {
+    font-size: 0.78em;
+    color: #95a5a6;
+  }
+
+  .note-btn {
+    min-width: 80px;
+    height: 52px;
+    padding: 0 12px;
+    border: 2px solid #d5dbdb;
+    border-radius: 12px;
+    background: #fff;
+    color: #2c3e50;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.12s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+  }
+  .note-btn:hover {
+    background: #fdedec;
+    border-color: #e74c3c;
+    color: #e74c3c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231,76,60,0.18);
+  }
+  .note-btn:active { transform: scale(0.92); }
+  .note-btn.flash-ok {
+    background: #2ecc71 !important;
+    border-color: #2ecc71 !important;
+    color: #fff !important;
+  }
+  .note-btn.flash-err {
+    background: #e74c3c !important;
+    border-color: #e74c3c !important;
+    color: #fff !important;
+    animation: shake 0.35s ease-out;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-7px); }
+    40%     { transform: translateX(7px); }
+    60%     { transform: translateX(-5px); }
+    80%     { transform: translateX(5px); }
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .action-btn {
+    padding: 10px 28px;
+    border: none;
+    border-radius: 24px;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+  .action-btn:active { transform: scale(0.92); }
+  .btn-reset {
+    background: #ecf0f1;
+    color: #7f8c8d;
+  }
+  .btn-reset:hover { background: #d5dbdb; color: #2c3e50; }
+
+  .settings {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 0.9em;
+    margin-top: 16px;
+    color: #95a5a6;
+  }
+  .settings label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  .settings input[type="checkbox"] {
+    accent-color: #e74c3c;
+    width: 15px;
+    height: 15px;
+  }
+
+  /* ── 排名弹窗 ── */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  .overlay.show {
+    display: flex;
+  }
+  .overlay-box {
+    background: #fff;
+    border-radius: 24px;
+    padding: 36px 40px 30px;
+    max-width: 480px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    animation: popIn 0.3s ease-out;
+  }
+  @keyframes popIn {
+    0%   { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+  .overlay-box h2 {
+    font-size: 2em;
+    margin-bottom: 6px;
+  }
+  .overlay-box .final-score {
+    font-size: 3em;
+    font-weight: bold;
+    color: #e74c3c;
+    margin-bottom: 4px;
+  }
+  .overlay-box .final-label {
+    font-size: 0.9em;
+    color: #95a5a6;
+    margin-bottom: 18px;
+  }
+
+  .rank-list {
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .rank-list h3 {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .rank-list ol {
+    list-style: none;
+    padding: 0;
+    counter-reset: rank;
+  }
+  .rank-list li {
+    counter-increment: rank;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.05em;
+  }
+  .rank-list li::before {
+    content: '#' counter(rank);
+    font-size: 0.8em;
+    color: #95a5a6;
+    min-width: 28px;
+  }
+  .rank-list li.me {
+    background: #fdedec;
+  }
+  .rank-list .rank-score {
+    color: #e74c3c;
+  }
+  .rank-list .rank-date {
+    font-size: 0.75em;
+    color: #b0b0b0;
+    font-weight: normal;
+  }
+  .rank-empty {
+    color: #bbb;
+    font-size: 0.9em;
+    padding: 12px 0;
+  }
+
+  .overlay-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 640px) {
+    .container { padding: 16px 12px; }
+    h1 { font-size: 1.3em; }
+    .note-btn { min-width: 52px; height: 40px; font-size: 0.75em; padding: 0 4px; }
+    .note-buttons { gap: 4px; }
+    .fret-cell { height: 32px; }
+    .string-row { height: 32px; }
+    .highlight-dot { width: 20px; height: 20px; }
+    .score-value { font-size: 1.6em; }
+    .accuracy-badge { font-size: 1.6em; min-width: 56px; }
+    .string-sel-btn { width: 34px; height: 34px; font-size: 0.85em; }
+    .score-panel { gap: 24px; }
+    .overlay-box { padding: 24px 18px; }
+    .overlay-box .final-score { font-size: 2.2em; }
+    .key-display .key-name { font-size: 1.6em; }
+    .key-display .degree-name { font-size: 1.6em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1 id="mainTitle">🎸 吉他指板音名训练</h1>
+
+  <!-- 模式切换 -->
+  <div class="toggle-row">
+    <button class="toggle-btn active" data-mode="practice">🎯 练习模式</button>
+    <button class="toggle-btn" data-mode="challenge">⚡ 挑战模式</button>
+  </div>
+
+  <!-- 科目切换 -->
+  <div class="toggle-row" style="margin-bottom:16px">
+    <button class="toggle-btn active-subj" data-subject="fretboard">🎸 指板音名</button>
+    <button class="toggle-btn" data-subject="scale">🎼 音级训练</button>
+  </div>
+
+  <!-- 分数面板 -->
+  <div class="score-panel">
+    <div class="score-item" id="livesItem">
+      <div class="lives-display" id="elLives"></div>
+      <div class="score-label">❤️ 生命</div>
+    </div>
+    <div class="score-item">
+      <div class="score-value" id="elCorrect">0</div>
+      <div class="score-label" id="labelCorrect">✅ 正确</div>
+    </div>
+    <div class="score-item" id="totalItem">
+      <div class="score-value" id="elTotal">0</div>
+      <div class="score-label" id="labelTotal">📋 总题数</div>
+    </div>
+    <div class="score-item" id="accuracyItem">
+      <div class="accuracy-badge" id="elAccuracy">-</div>
+      <div class="score-label" id="labelAccuracy">📊 正确率</div>
+    </div>
+  </div>
+
+  <!-- 倒计时条（挑战模式） -->
+  <div class="timer-bar hidden" id="timerBar">
+    <div class="timer-fill" id="timerFill"></div>
+  </div>
+
+  <!-- 调性信息（音级训练模式） -->
+  <div class="key-display hidden" id="keyDisplay">
+    <div>
+      <span class="key-name" id="keyName">C</span>
+      <span style="font-size:1.6em;color:#bbb;margin:0 6px">大调</span>
+      <span class="degree-name" id="degreeName">5</span>
+      <span style="font-size:1.6em">级音</span>
+    </div>
+    <div class="key-hint" id="keyHint"></div>
+  </div>
+
+  <!-- 调性选择器（音级训练模式） -->
+  <div class="key-selector hidden" id="keySelector">
+    <div class="key-sel-label">🎯 选择调性练习：</div>
+    <div class="key-sel-btns" id="keySelBtns">
+      <button class="key-sel-btn all-btn key-all active" data-keys="all">全选</button>
+    </div>
+  </div>
+
+  <div class="fretboard" id="fretboard"></div>
+
+  <!-- 弦选择器 -->
+  <div class="string-selector" id="stringSelector">
+    <button class="string-sel-btn all-btn active" data-str="all">全部</button>
+    <button class="string-sel-btn" data-str="0">E</button>
+    <button class="string-sel-btn" data-str="1">B</button>
+    <button class="string-sel-btn" data-str="2">G</button>
+    <button class="string-sel-btn" data-str="3">D</button>
+    <button class="string-sel-btn" data-str="4">A</button>
+    <button class="string-sel-btn" data-str="5">E</button>
+  </div>
+
+  <div class="prompt-text" id="prompt">请选择 <em>?</em> 弦 <em>?</em> 品的音名</div>
+  <div class="feedback" id="feedback"></div>
+
+  <div class="note-buttons" id="noteButtons"></div>
+
+  <!-- 键盘输入（音级训练模式） -->
+  <div class="scale-input hidden" id="scaleInput">
+    <input type="text" id="answerInput" maxlength="3" autocomplete="off" placeholder="输入音名">
+    <div class="input-hint">支持 # / b，如 F#、Bb</div>
+  </div>
+
+  <div class="actions">
+    <button class="action-btn btn-reset" id="btnReset">🔄 重置成绩</button>
+  </div>
+
+  <div class="settings">
+    <label><input type="checkbox" id="chkNatural"> 仅自然音 (C D E F G A B)</label>
+  </div>
+</div>
+
+<!-- 游戏结束弹窗 -->
+<div class="overlay" id="gameOverOverlay">
+  <div class="overlay-box">
+    <h2>💀 游戏结束</h2>
+    <div class="final-score" id="finalScore">0</div>
+    <div class="final-label">最终得分</div>
+    <div class="rank-list">
+      <h3>🏆 排行榜</h3>
+      <ol id="scoreRanking"><li class="rank-empty">暂无记录</li></ol>
+    </div>
+    <div class="overlay-actions">
+      <button class="action-btn" id="btnRetry" style="background:#e74c3c;color:#fff;">⚡ 再来一局</button>
+      <button class="action-btn btn-reset" id="btnBackToPractice">🎯 返回练习</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  // ═══════════════════════════════════════
+  //  数据
+  // ═══════════════════════════════════════
+
+  const STRINGS = [
+    { idx: 0, label: 'E', name: '①弦 (高音E)', open: 'E',  freq: 329.63 },
+    { idx: 1, label: 'B', name: '②弦 (B)',      open: 'B',  freq: 246.94 },
+    { idx: 2, label: 'G', name: '③弦 (G)',      open: 'G',  freq: 196.00 },
+    { idx: 3, label: 'D', name: '④弦 (D)',      open: 'D',  freq: 146.83 },
+    { idx: 4, label: 'A', name: '⑤弦 (A)',      open: 'A',  freq: 110.00 },
+    { idx: 5, label: 'E', name: '⑥弦 (低音E)',  open: 'E',  freq:  82.41 },
+  ];
+
+  const CHROMATIC  = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  const CANONICAL = {};
+  (function() {
+    const map = { C:['C'], 'C#':['C#','Db'], D:['D'], 'D#':['D#','Eb'], E:['E'],
+                  F:['F'], 'F#':['F#','Gb'], G:['G'], 'G#':['G#','Ab'],
+                  A:['A'], 'A#':['A#','Bb'], B:['B'] };
+    for (const [k, arr] of Object.entries(map))
+      for (const a of arr) CANONICAL[a] = k;
+  })();
+
+  const BTN_LABELS = ['C','C#/Db','D','D#/Eb','E','F','F#/Gb','G','G#/Ab','A','A#/Bb','B'];
+  const NATURAL_NOTES = ['C','D','E','F','G','A','B'];
+
+  // 12 个自然大调（按五度圈排列）
+  const MAJOR_KEYS = [
+    { name: 'C',  notes: ['C','D','E','F','G','A','B'],                          accStr: '无升降' },
+    { name: 'G',  notes: ['G','A','B','C','D','E','F#'],                         accStr: '♯F' },
+    { name: 'D',  notes: ['D','E','F#','G','A','B','C#'],                        accStr: '♯F ♯C' },
+    { name: 'A',  notes: ['A','B','C#','D','E','F#','G#'],                       accStr: '♯F ♯C ♯G' },
+    { name: 'E',  notes: ['E','F#','G#','A','B','C#','D#'],                      accStr: '♯F ♯C ♯G ♯D' },
+    { name: 'B',  notes: ['B','C#','D#','E','F#','G#','A#'],                     accStr: '♯F ♯C ♯G ♯D ♯A' },
+    { name: 'F#', notes: ['F#','G#','A#','B','C#','D#','E#'],                    accStr: '♯F ♯C ♯G ♯D ♯A ♯E' },
+    { name: 'F',  notes: ['F','G','A','Bb','C','D','E'],                         accStr: '♭B' },
+    { name: 'Bb', notes: ['Bb','C','D','Eb','F','G','A'],                        accStr: '♭B ♭E' },
+    { name: 'Eb', notes: ['Eb','F','G','Ab','Bb','C','D'],                       accStr: '♭B ♭E ♭A' },
+    { name: 'Ab', notes: ['Ab','Bb','C','Db','Eb','F','G'],                      accStr: '♭B ♭E ♭A ♭D' },
+    { name: 'Db', notes: ['Db','Eb','F','Gb','Ab','Bb','C'],                     accStr: '♭B ♭E ♭A ♭D ♭G' },
+    { name: 'Gb', notes: ['Gb','Ab','Bb','Cb','Db','Eb','F'],                    accStr: '♭B ♭E ♭A ♭D ♭G ♭C' },
+  ];
+
+  const DEGREE_ROMAN = ['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ','Ⅶ'];
+  const DEGREE_CN = ['一级','二级','三级','四级','五级','六级','七级'];
+
+  // ═══════════════════════════════════════
+  //  状态
+  // ═══════════════════════════════════════
+
+  let correct = 0;
+  let total   = 0;
+  let question = null;
+  let locked  = false;
+  let selectedStr = null;
+  let naturalOnly = false;
+  let subject = 'fretboard';  // 'fretboard' | 'scale'
+
+  // 挑战模式
+  let challengeMode = false;
+  let lives = 3;
+  let challengeScore = 0;
+  let timerId = null;
+  let timerAnimId = null;
+
+  // ── 指板位置统计（6弦×12品） ──
+  const TOTAL_FRETS = 12;
+  let posStats = [];
+  function initPosStats() {
+    posStats = [];
+    for (let s = 0; s < 6; s++) {
+      posStats[s] = [];
+      for (let f = 1; f <= TOTAL_FRETS; f++) {
+        posStats[s][f] = { correct: 0, total: 0, timeSum: 0 };
+      }
+    }
+  }
+
+  const POS_STATS_KEY = 'fretboard-pos-stats';
+  function savePosStats() {
+    try { localStorage.setItem(POS_STATS_KEY, JSON.stringify(posStats)); } catch(e) {}
+  }
+  function loadPosStats() {
+    try {
+      const data = localStorage.getItem(POS_STATS_KEY);
+      if (data) { const p = JSON.parse(data); if (Array.isArray(p) && p.length === 6) return p; }
+    } catch(e) {}
+    return null;
+  }
+
+  const savedPos = loadPosStats();
+  if (savedPos) { posStats = savedPos; } else { initPosStats(); }
+
+  // ── 音级训练统计（12调×7级） ──
+  let scaleStats = [];
+  function initScaleStats() {
+    scaleStats = [];
+    for (let k = 0; k < MAJOR_KEYS.length; k++) {
+      scaleStats[k] = [];
+      for (let d = 0; d < 7; d++) {
+        scaleStats[k][d] = { correct: 0, total: 0, timeSum: 0 };
+      }
+    }
+  }
+
+  const SCALE_STATS_KEY = 'fretboard-scale-stats';
+  function saveScaleStats() {
+    try { localStorage.setItem(SCALE_STATS_KEY, JSON.stringify(scaleStats)); } catch(e) {}
+  }
+  function loadScaleStats() {
+    try {
+      const data = localStorage.getItem(SCALE_STATS_KEY);
+      if (data) { const p = JSON.parse(data); if (Array.isArray(p) && p.length === MAJOR_KEYS.length) return p; }
+    } catch(e) {}
+    return null;
+  }
+
+  const savedScale = loadScaleStats();
+  if (savedScale) { scaleStats = savedScale; } else { initScaleStats(); }
+
+  // 音级训练模式：选中的调性索引，null = 全部
+  let selectedKeys = null;
+
+  let questionTime = 0;
+
+  // ═══════════════════════════════════════
+  //  DOM
+  // ═══════════════════════════════════════
+
+  const $ = id => document.getElementById(id);
+  const fbEl      = $('fretboard');
+  const promptEl  = $('prompt');
+  const feedEl    = $('feedback');
+  const btnsEl    = $('noteButtons');
+  const elOK      = $('elCorrect');
+  const elTotal   = $('elTotal');
+  const elPct     = $('elAccuracy');
+
+  const strSel    = $('stringSelector');
+  const ckNatural = $('chkNatural');
+
+  const livesItem    = $('livesItem');
+  const elLives      = $('elLives');
+  const elLabelCorr  = $('labelCorrect');
+  const totalItem    = $('totalItem');
+  const labelTotal   = $('labelTotal');
+  const accuracyItem = $('accuracyItem');
+  const labelAcc     = $('labelAccuracy');
+  const timerBar     = $('timerBar');
+  const timerFill    = $('timerFill');
+  const overlay      = $('gameOverOverlay');
+  const finalScore   = $('finalScore');
+  const scoreRanking = $('scoreRanking');
+
+  const keyDisplay  = $('keyDisplay');
+  const keyNameEl   = $('keyName');
+  const degreeNameEl= $('degreeName');
+  const keyHintEl   = $('keyHint');
+
+  const keySelector = $('keySelector');
+  const keySelBtns  = $('keySelBtns');
+  const scaleInput  = $('scaleInput');
+  const answerInput = $('answerInput');
+
+  const modeBtns    = document.querySelectorAll('[data-mode]');
+  const subjBtns    = document.querySelectorAll('[data-subject]');
+
+  const mainTitle   = $('mainTitle');
+
+  // ═══════════════════════════════════════
+  //  权重工具
+  // ═══════════════════════════════════════
+
+  function calcWeight(st, fallbackAcc, fallbackTime) {
+    const accuracy = st.total > 0 ? st.correct / st.total : fallbackAcc;
+    const timeAvg  = st.total > 0 ? st.timeSum / st.total : fallbackTime;
+    return (1 - accuracy) * 15 + Math.min(timeAvg / 2000, 2) * 0.5 + 0.5;
+  }
+
+  function weightedPick(items) {
+    const weights = items.map(item => item.weight);
+    const totalW = weights.reduce((a, b) => a + b, 0);
+    if (totalW <= 0) return Math.floor(Math.random() * items.length);
+    let r = Math.random() * totalW;
+    for (let i = 0; i < items.length; i++) {
+      r -= weights[i];
+      if (r <= 0) return i;
+    }
+    return items.length - 1;
+  }
+
+  // 解析键盘输入的音名（大小写均可，支持 # b）
+  function parseNoteInput(str) {
+    str = str.trim();
+    if (!str) return null;
+    const m = str.match(/^([a-gA-G])([#♯b♭]?)$/);
+    if (!m) return null;
+    const note = m[1].toUpperCase() + (m[2] === '♯' ? '#' : m[2] === '♭' ? 'b' : m[2]);
+    return CANONICAL[note] || null;
+  }
+
+  function noteAt(stringIdx, fret) {
+    const base = CHROMATIC.indexOf(STRINGS[stringIdx].open);
+    return CHROMATIC[(base + fret) % 12];
+  }
+
+  // ── 指板模式出题 ──
+  function fretRandomQ() {
+    let si;
+    if (selectedStr !== null) {
+      si = selectedStr;
+    } else {
+      const items = [];
+      for (let s = 0; s < 6; s++) {
+        let sum = 0, count = 0;
+        for (let f = 1; f <= TOTAL_FRETS; f++) {
+          if (naturalOnly && !NATURAL_NOTES.includes(noteAt(s, f))) continue;
+          sum += calcWeight(posStats[s][f], 0.5, 1000);
+          count++;
+        }
+        items.push({ idx: s, weight: count > 0 ? sum / count : 1 });
+      }
+      si = items[weightedPick(items)].idx;
+    }
+
+    const fretItems = [];
+    for (let f = 1; f <= TOTAL_FRETS; f++) {
+      const note = noteAt(si, f);
+      if (naturalOnly && !NATURAL_NOTES.includes(note)) continue;
+      fretItems.push({ idx: f, weight: calcWeight(posStats[si][f], 0.5, 1000) });
+    }
+    const fr = fretItems[weightedPick(fretItems)].idx;
+
+    return { type: 'fretboard', stringIdx: si, fret: fr, note: noteAt(si, fr) };
+  }
+
+  // ── 音级模式出题 ──
+  function scaleRandomQ() {
+    // 确定可用调性
+    const activeKeys = (selectedKeys === null)
+      ? MAJOR_KEYS.map((_, i) => i)
+      : selectedKeys.filter(k => k >= 0 && k < MAJOR_KEYS.length);
+    if (activeKeys.length === 0) {
+      // 降级：全选
+      selectedKeys = null;
+      keySelBtns.querySelectorAll('.key-sel-btn').forEach(b => b.classList.add('active'));
+      return scaleRandomQ();
+    }
+
+    // 选调
+    const keyItems = [];
+    for (const k of activeKeys) {
+      let sum = 0;
+      for (let d = 0; d < 7; d++) {
+        sum += calcWeight(scaleStats[k][d], 0.5, 1000);
+      }
+      keyItems.push({ idx: k, weight: sum / 7 });
+    }
+    const ki = keyItems[weightedPick(keyItems)].idx;
+
+    // 选级
+    const degItems = [];
+    for (let d = 0; d < 7; d++) {
+      degItems.push({ idx: d, weight: calcWeight(scaleStats[ki][d], 0.5, 1000) });
+    }
+    const di = degItems[weightedPick(degItems)].idx;
+
+    return {
+      type: 'scale',
+      keyIdx: ki,
+      degree: di + 1,
+      note: MAJOR_KEYS[ki].notes[di]
+    };
+  }
+
+  function randomQ() {
+    return subject === 'fretboard' ? fretRandomQ() : scaleRandomQ();
+  }
+
+  // ═══════════════════════════════════════
+  //  指板渲染
+  // ═══════════════════════════════════════
+
+  function buildFretboard() {
+    let h = '';
+    for (let s = 0; s < 6; s++) {
+      const dimmed = (selectedStr !== null && selectedStr !== s) ? ' dimmed' : '';
+      h += `<div class="string-row${dimmed}" data-s="${s}">`;
+      h += `<div class="string-label">${STRINGS[s].label}</div>`;
+      h += `<div class="fret-slots">`;
+      for (let f = 1; f <= 12; f++) {
+        const last = (f === 12) ? ' last-fret' : '';
+        h += `<div class="fret-cell${last}" data-s="${s}" data-f="${f}"></div>`;
+      }
+      h += `</div></div>`;
+    }
+    h += `<div class="fret-numbers">`;
+    for (let f = 1; f <= 12; f++) {
+      h += `<div class="fret-num">${f}</div>`;
+    }
+    h += `</div>`;
+    fbEl.innerHTML = h;
+    addFretMarkers();
+  }
+
+  function addFretMarkers() {
+    fbEl.querySelectorAll('.dot-marker').forEach(el => el.remove());
+
+    const row2 = fbEl.querySelector('.string-row[data-s="2"]');
+    const row3 = fbEl.querySelector('.string-row[data-s="3"]');
+    if (!row2 || !row3) return;
+
+    const fbRect = fbEl.getBoundingClientRect();
+    const r2Rect = row2.getBoundingClientRect();
+    const r3Rect = row3.getBoundingClientRect();
+    const midY = (r2Rect.bottom + r3Rect.top) / 2 - fbRect.top;
+
+    const dotFrets = [3, 5, 7, 9, 12];
+    const firstRow = fbEl.querySelector('.string-row[data-s="0"]');
+    if (!firstRow) return;
+
+    for (const fret of dotFrets) {
+      const cell = firstRow.querySelector(`.fret-cell[data-f="${fret}"]`);
+      if (!cell) continue;
+      const cellRect = cell.getBoundingClientRect();
+      const cx = cellRect.left - fbRect.left + cellRect.width / 2;
+
+      if (fret === 12) {
+        const d1 = document.createElement('span');
+        d1.className = 'dot-marker';
+        d1.style.cssText = `position:absolute;left:${cx}px;top:${midY - 7}px;transform:translate(-50%,-50%);z-index:2;pointer-events:none;`;
+        fbEl.appendChild(d1);
+
+        const d2 = document.createElement('span');
+        d2.className = 'dot-marker';
+        d2.style.cssText = `position:absolute;left:${cx}px;top:${midY + 7}px;transform:translate(-50%,-50%);z-index:2;pointer-events:none;`;
+        fbEl.appendChild(d2);
+      } else {
+        const d = document.createElement('span');
+        d.className = 'dot-marker';
+        d.style.cssText = `position:absolute;left:${cx}px;top:${midY}px;transform:translate(-50%,-50%);z-index:2;pointer-events:none;`;
+        fbEl.appendChild(d);
+      }
+    }
+  }
+
+  function showHighlight() {
+    fbEl.querySelectorAll('.highlight-dot').forEach(el => el.remove());
+    if (!question || question.type !== 'fretboard') return;
+    const cell = fbEl.querySelector(`.fret-cell[data-s="${question.stringIdx}"][data-f="${question.fret}"]`);
+    if (!cell) return;
+    const dot = document.createElement('span');
+    dot.className = 'highlight-dot';
+    cell.appendChild(dot);
+  }
+
+  // ═══════════════════════════════════════
+  //  音名按钮
+  // ═══════════════════════════════════════
+
+  function buildButtons() {
+    let h = '';
+    const notes = (subject === 'fretboard' && naturalOnly) ? NATURAL_NOTES : CHROMATIC;
+    for (const note of notes) {
+      const label = (subject === 'fretboard' && naturalOnly) ? note : BTN_LABELS[CHROMATIC.indexOf(note)];
+      h += `<button class="note-btn" data-note="${note}">${label}</button>`;
+    }
+    btnsEl.innerHTML = h;
+
+    const cols = (subject === 'fretboard' && naturalOnly) ? 7 : 6;
+    btnsEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+    btnsEl.querySelectorAll('.note-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (locked) return;
+        handle(btn.dataset.note);
+      });
+    });
+  }
+
+  // ═══════════════════════════════════════
+  //  分数 & 提示
+  // ═══════════════════════════════════════
+
+  function updateScore() {
+    if (challengeMode) {
+      elOK.textContent = challengeScore;
+      elTotal.textContent = total;
+      if (total > 0) {
+        const pct = Math.round(correct / total * 100);
+        elPct.textContent = pct + '%';
+        if (pct >= 90)      elPct.style.background = '#27ae60';
+        else if (pct >= 70) elPct.style.background = '#f39c12';
+        else                elPct.style.background = '#e74c3c';
+      } else {
+        elPct.textContent = '-';
+        elPct.style.background = '#e74c3c';
+      }
+      return;
+    }
+
+    elOK.textContent = correct;
+    elTotal.textContent = total;
+    if (total > 0) {
+      const pct = Math.round(correct / total * 100);
+      elPct.textContent = pct + '%';
+      if (pct >= 90)      elPct.style.background = '#27ae60';
+      else if (pct >= 70) elPct.style.background = '#f39c12';
+      else                elPct.style.background = '#e74c3c';
+    } else {
+      elPct.textContent = '-';
+      elPct.style.background = '#e74c3c';
+    }
+  }
+
+  function updatePrompt() {
+    if (!question) return;
+    if (question.type === 'scale') {
+      const k = MAJOR_KEYS[question.keyIdx];
+      promptEl.innerHTML = `请选择 <em class="key-em">${k.name}大调</em> 的 <em>${question.degree}级</em> 音名`;
+
+      keyNameEl.textContent = k.name;
+      degreeNameEl.textContent = question.degree;
+      keyHintEl.textContent = `调号：${k.accStr}`;
+    } else {
+      const s = STRINGS[question.stringIdx];
+      promptEl.innerHTML = `请选择 <em>${s.name}</em> 弦 <em>${question.fret}</em> 品的音名`;
+    }
+  }
+
+  function updateLives() {
+    const full = '❤️'.repeat(lives);
+    const empty = '🖤'.repeat(3 - lives);
+    elLives.textContent = full + empty;
+  }
+
+  function switchUI(mode) {
+    if (mode === 'challenge') {
+      livesItem.classList.remove('hidden');
+      totalItem.classList.add('hidden');
+      accuracyItem.classList.add('hidden');
+      timerBar.classList.remove('hidden');
+      elLabelCorr.textContent = '🎯 得分';
+    } else {
+      livesItem.classList.add('hidden');
+      totalItem.classList.remove('hidden');
+      accuracyItem.classList.remove('hidden');
+      timerBar.classList.add('hidden');
+      elLabelCorr.textContent = '✅ 正确';
+      labelTotal.textContent = '📋 总题数';
+      labelAcc.textContent = '📊 正确率';
+    }
+  }
+
+  function switchSubjectUI(newSubject) {
+    subject = newSubject;
+    if (newSubject === 'scale') {
+      mainTitle.textContent = '🎼 自然大调音级训练';
+      fbEl.classList.add('hidden');
+      strSel.classList.add('hidden');
+      ckNatural.parentElement.classList.add('hidden');
+      keyDisplay.classList.remove('hidden');
+      keySelector.classList.remove('hidden');
+      btnsEl.classList.add('hidden');
+      scaleInput.classList.remove('hidden');
+    } else {
+      mainTitle.textContent = '🎸 吉他指板音名训练';
+      fbEl.classList.remove('hidden');
+      strSel.classList.remove('hidden');
+      ckNatural.parentElement.classList.remove('hidden');
+      keyDisplay.classList.add('hidden');
+      keySelector.classList.add('hidden');
+      btnsEl.classList.remove('hidden');
+      scaleInput.classList.add('hidden');
+    }
+    buildButtons();
+  }
+
+  // 构建调性选择按钮
+  function buildKeySelector() {
+    let h = '<button class="key-sel-btn all-btn key-all active" data-keys="all">全选</button>';
+    for (let k = 0; k < MAJOR_KEYS.length; k++) {
+      const active = (selectedKeys === null) ? ' active' : '';
+      h += `<button class="key-sel-btn${active}" data-key="${k}">${MAJOR_KEYS[k].name}</button>`;
+    }
+    keySelBtns.innerHTML = h;
+
+    // 事件委托
+    keySelBtns.addEventListener('click', function(e) {
+      const btn = e.target.closest('.key-sel-btn');
+      if (!btn) return;
+
+      if (btn.dataset.keys === 'all') {
+        // 全选
+        selectedKeys = null;
+        keySelBtns.querySelectorAll('.key-sel-btn').forEach(b => b.classList.add('active'));
+      } else {
+        const ki = parseInt(btn.dataset.key);
+        // 如果当前是全选状态，先切换为单选模式
+        if (selectedKeys === null) {
+          selectedKeys = [];
+          keySelBtns.querySelectorAll('.key-sel-btn').forEach(b => b.classList.remove('active'));
+          // 保持全选按钮取消激活
+        }
+        const idx = selectedKeys.indexOf(ki);
+        if (idx >= 0) {
+          selectedKeys.splice(idx, 1);  // 取消选中
+          btn.classList.remove('active');
+          if (selectedKeys.length === 0) {
+            // 如果全取消了，回到全选
+            selectedKeys = null;
+            keySelBtns.querySelectorAll('.key-sel-btn').forEach(b => b.classList.add('active'));
+          }
+        } else {
+          selectedKeys.push(ki);  // 选中
+          btn.classList.add('active');
+        }
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════
+  //  声音
+  // ═══════════════════════════════════════
+
+  let audioCtx = null;
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playNoteSound() {
+    if (!question || question.type !== 'fretboard') return;
+    const ctx = ensureAudio();
+    const now = ctx.currentTime;
+    const s = STRINGS[question.stringIdx];
+    const freq = s.freq * Math.pow(2, question.fret / 12);
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, now);
+    gain.gain.setValueAtTime(0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.8);
+  }
+
+  function playSound(type) {
+    const ctx = ensureAudio();
+    const now = ctx.currentTime;
+    if (type === 'correct') {
+      [523.25, 659.25].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        const t = now + i * 0.1;
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0.25, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.25);
+      });
+    } else if (type === 'wrong') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(110, now);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'gameover') {
+      [392, 349.23, 329.63, 261.63].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        const t = now + i * 0.2;
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.3);
+      });
+    }
+  }
+
+  // ═══════════════════════════════════════
+  //  倒计时（挑战模式）
+  // ═══════════════════════════════════════
+
+  function stopTimer() {
+    if (timerId) { clearTimeout(timerId); timerId = null; }
+    if (timerAnimId) { cancelAnimationFrame(timerAnimId); timerAnimId = null; }
+  }
+
+  function startTimer() {
+    stopTimer();
+    const DURATION = 3000;
+    const start = performance.now();
+    timerFill.style.transition = 'none';
+    timerFill.style.width = '100%';
+    timerFill.className = 'timer-fill';
+
+    function animate() {
+      const elapsed = performance.now() - start;
+      const remain = Math.max(0, 1 - elapsed / DURATION);
+      const pct = remain * 100;
+      timerFill.style.width = pct + '%';
+      if (pct > 50) timerFill.className = 'timer-fill';
+      else if (pct > 25) timerFill.className = 'timer-fill warning';
+      else timerFill.className = 'timer-fill danger';
+      if (pct > 0) {
+        timerAnimId = requestAnimationFrame(animate);
+      }
+    }
+    timerAnimId = requestAnimationFrame(animate);
+
+    timerId = setTimeout(() => {
+      timerAnimId = null;
+      timerId = null;
+      if (!locked) handleTimeout();
+    }, DURATION);
+  }
+
+  // ═══════════════════════════════════════
+  //  排行榜（localStorage）
+  // ═══════════════════════════════════════
+
+  const SCORE_KEY = 'fretboard-challenge-scores';
+
+  function loadScores() {
+    try {
+      return JSON.parse(localStorage.getItem(SCORE_KEY) || '[]');
+    } catch { return []; }
+  }
+
+  function saveScore(score) {
+    const scores = loadScores();
+    scores.push({
+      score: score,
+      date: new Date().toISOString().slice(0, 10)
+    });
+    scores.sort((a, b) => b.score - a.score);
+    if (scores.length > 20) scores.length = 20;
+    localStorage.setItem(SCORE_KEY, JSON.stringify(scores));
+    return scores;
+  }
+
+  function renderRanking(scores, highlightScore) {
+    if (!scores || scores.length === 0) {
+      scoreRanking.innerHTML = '<li class="rank-empty">暂无记录</li>';
+      return;
+    }
+    let h = '';
+    scores.forEach((s, i) => {
+      const cls = s.score === highlightScore ? 'me' : '';
+      h += `<li class="${cls}">`;
+      h += `<span></span>`;
+      h += `<span class="rank-score">${s.score} 分</span>`;
+      h += `<span class="rank-date">${s.date}</span>`;
+      h += `</li>`;
+    });
+    scoreRanking.innerHTML = h;
+  }
+
+  // ═══════════════════════════════════════
+  //  出题
+  // ═══════════════════════════════════════
+
+  let prevQKey = '';  // 上道题的标识，防止连续重复
+
+  function nextQuestion() {
+    let tries = 0;
+    do {
+      question = randomQ();
+      const qk = question.type === 'fretboard'
+        ? `f:${question.stringIdx}-${question.fret}`
+        : `s:${question.keyIdx}-${question.degree}`;
+      if (qk !== prevQKey || tries > 20) { prevQKey = qk; break; }
+      tries++;
+    } while (true);
+    questionTime = performance.now();
+    locked = false;
+    feedEl.textContent = '';
+    feedEl.className = 'feedback';
+    updatePrompt();
+    showHighlight();
+    btnsEl.querySelectorAll('.note-btn').forEach(b => {
+      b.classList.remove('flash-ok', 'flash-err');
+    });
+    answerInput.classList.remove('flash-ok', 'flash-err');
+
+    if (subject === 'scale') {
+      setTimeout(() => answerInput.focus(), 100);
+    }
+
+    if (challengeMode) {
+      startTimer();
+    }
+
+    setTimeout(() => playNoteSound(), 150);
+  }
+
+  // ═══════════════════════════════════════
+  //  回答
+  // ═══════════════════════════════════════
+
+  function handle(userNote) {
+    if (locked || !question) return;
+    locked = true;
+    stopTimer();
+
+    const elapsed = performance.now() - questionTime;
+
+    // 更新对应科目的统计
+    if (question.type === 'fretboard') {
+      const st = posStats[question.stringIdx][question.fret];
+      if (CANONICAL[userNote] === CANONICAL[question.note]) {
+        total++; correct++;
+        st.correct++; st.total++; st.timeSum += elapsed;
+        if (challengeMode) challengeScore++;
+        feedEl.textContent = `✅ 正确！ 答案是 ${question.note}`;
+        feedEl.className = 'feedback ok';
+        const btn = btnsEl.querySelector(`[data-note="${userNote}"]`);
+        if (btn) btn.classList.add('flash-ok');
+        savePosStats();
+        updateScore();
+        playSound('correct');
+        setTimeout(() => nextQuestion(), challengeMode ? 500 : 800);
+      } else {
+        total++;
+        st.total++; st.timeSum += elapsed;
+        feedEl.textContent = `❌ 错误！再试一次`;
+        feedEl.className = 'feedback err';
+        const btn = btnsEl.querySelector(`[data-note="${userNote}"]`);
+        if (btn) btn.classList.add('flash-err');
+        savePosStats();
+        updateScore();
+        playSound('wrong');
+        errNext(btn);
+      }
+    } else {
+      // scale 模式（键盘输入）
+      const st = scaleStats[question.keyIdx][question.degree - 1];
+      if (CANONICAL[userNote] === CANONICAL[question.note]) {
+        total++; correct++;
+        st.correct++; st.total++; st.timeSum += elapsed;
+        if (challengeMode) challengeScore++;
+        feedEl.textContent = `✅ 正确！ ${MAJOR_KEYS[question.keyIdx].name}大调的 ${question.degree} 级音是 ${question.note}`;
+        feedEl.className = 'feedback ok';
+        answerInput.classList.add('flash-ok');
+        answerInput.value = '';
+        saveScaleStats();
+        updateScore();
+        playSound('correct');
+        setTimeout(() => nextQuestion(), challengeMode ? 500 : 800);
+      } else {
+        total++;
+        st.total++; st.timeSum += elapsed;
+        feedEl.textContent = `❌ 错误！再试一次`;
+        feedEl.className = 'feedback err';
+        answerInput.classList.add('flash-err');
+        saveScaleStats();
+        updateScore();
+        playSound('wrong');
+        errNext(answerInput);
+      }
+    }
+  }
+
+  // 错误后的下一步（挑战扣命 or 练习解锁）
+  function errNext(btn) {
+    if (challengeMode) {
+      lives--;
+      updateLives();
+      if (lives <= 0) {
+        setTimeout(() => endChallenge(), 600);
+        return;
+      }
+      setTimeout(() => {
+        locked = false;
+        if (btn) btn.classList.remove('flash-err');
+        nextQuestion();
+      }, 800);
+    } else {
+      setTimeout(() => {
+        locked = false;
+        if (btn) btn.classList.remove('flash-err');
+      }, 800);
+    }
+  }
+
+  function handleTimeout() {
+    if (locked || !question) return;
+    locked = true;
+
+    feedEl.textContent = `⏰ 超时！答案是 ${question.note}`;
+    feedEl.className = 'feedback timeout';
+
+    const correctBtn = btnsEl.querySelector(`[data-note="${question.note}"]`);
+    if (correctBtn) correctBtn.classList.add('flash-ok');
+
+    total++;
+    if (question.type === 'fretboard') {
+      posStats[question.stringIdx][question.fret].total++;
+      savePosStats();
+    } else {
+      scaleStats[question.keyIdx][question.degree - 1].total++;
+      saveScaleStats();
+    }
+    lives--;
+    updateLives();
+    playSound('wrong');
+
+    if (lives <= 0) {
+      setTimeout(() => endChallenge(), 600);
+    } else {
+      setTimeout(() => {
+        if (correctBtn) correctBtn.classList.remove('flash-ok');
+        nextQuestion();
+      }, 800);
+    }
+  }
+
+  // ═══════════════════════════════════════
+  //  挑战模式控制
+  // ═══════════════════════════════════════
+
+  function startChallenge() {
+    challengeMode = true;
+    challengeScore = 0;
+    lives = 3;
+    correct = 0;
+    total = 0;
+    if (subject === 'fretboard') {
+      initPosStats();
+    } else {
+      initScaleStats();
+    }
+
+    ckNatural.disabled = true;
+    document.querySelectorAll('.string-sel-btn').forEach(b => b.disabled = true);
+
+    switchUI('challenge');
+    updateLives();
+    updateScore();
+    overlay.classList.remove('show');
+    nextQuestion();
+  }
+
+  function endChallenge() {
+    stopTimer();
+    locked = true;
+    playSound('gameover');
+
+    const scores = saveScore(challengeScore);
+    finalScore.textContent = challengeScore;
+    renderRanking(scores, challengeScore);
+
+    overlay.classList.add('show');
+  }
+
+  function backToPractice() {
+    challengeMode = false;
+    overlay.classList.remove('show');
+
+    ckNatural.disabled = false;
+    document.querySelectorAll('.string-sel-btn').forEach(b => b.disabled = false);
+
+    correct = 0;
+    total = 0;
+    challengeScore = 0;
+    lives = 3;
+
+    if (subject === 'fretboard') {
+      const saved = loadPosStats();
+      if (saved) { posStats = saved; } else { initPosStats(); }
+    } else {
+      const saved = loadScaleStats();
+      if (saved) { scaleStats = saved; } else { initScaleStats(); }
+    }
+
+    switchUI('practice');
+    updateScore();
+    nextQuestion();
+  }
+
+  // ═══════════════════════════════════════
+  //  科目切换
+  // ═══════════════════════════════════════
+
+  function setSubject(newSubject) {
+    if (newSubject === subject) return;
+    if (challengeMode) return;  // 挑战中不允许切换
+
+    subject = newSubject;
+    subjBtns.forEach(b => b.classList.remove('active-subj'));
+    document.querySelector(`[data-subject="${newSubject}"]`).classList.add('active-subj');
+    switchSubjectUI(newSubject);
+
+    // 重置分数
+    correct = 0;
+    total = 0;
+    challengeScore = 0;
+    updateScore();
+
+    // 重绘指板和按钮（按钮的 naturalOnly 状态随 subject 变化）
+    buildFretboard();
+    updateScore();
+    nextQuestion();
+  }
+
+  // ═══════════════════════════════════════
+  //  事件
+  // ═══════════════════════════════════════
+
+  // 模式切换
+  modeBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      if (this.dataset.mode === 'challenge') {
+        if (challengeMode) return;
+        modeBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        startChallenge();
+      } else {
+        if (!challengeMode) return;
+        modeBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        backToPractice();
+      }
+    });
+  });
+
+  // 科目切换
+  subjBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const subj = this.dataset.subject;
+      if (subj === subject) return;
+      subjBtns.forEach(b => b.classList.remove('active-subj'));
+      this.classList.add('active-subj');
+      setSubject(subj);
+    });
+  });
+
+  ckNatural.addEventListener('change', function() {
+    naturalOnly = this.checked;
+    buildButtons();
+    nextQuestion();
+  });
+
+  strSel.addEventListener('click', function(e) {
+    const btn = e.target.closest('.string-sel-btn');
+    if (!btn) return;
+    const val = btn.dataset.str;
+    strSel.querySelectorAll('.string-sel-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedStr = (val === 'all') ? null : parseInt(val);
+    buildFretboard();
+    nextQuestion();
+  });
+
+  // 键盘输入提交（Enter 键）
+  answerInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (locked || subject !== 'scale') return;
+      const parsed = parseNoteInput(this.value);
+      if (!parsed) {
+        feedEl.textContent = '⚠️ 请输入正确的音名（如 C、F#、Bb）';
+        feedEl.className = 'feedback err';
+        return;
+      }
+      handle(parsed);
+    }
+  });
+
+  $('btnReset').addEventListener('click', function() {
+    if (challengeMode) return;
+    correct = 0;
+    total = 0;
+    challengeScore = 0;
+    if (subject === 'fretboard') {
+      initPosStats();
+      savePosStats();
+    } else {
+      initScaleStats();
+      saveScaleStats();
+    }
+    updateScore();
+    nextQuestion();
+  });
+
+  // 弹窗按钮
+  $('btnRetry').addEventListener('click', function() {
+    startChallenge();
+  });
+  $('btnBackToPractice').addEventListener('click', function() {
+    modeBtns.forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-mode="practice"]').classList.add('active');
+    backToPractice();
+  });
+
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      // 不关闭
+    }
+  });
+
+  let resizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      addFretMarkers();
+      if (question) showHighlight();
+    }, 150);
+  });
+
+  // ═══════════════════════════════════════
+  //  启动
+  // ═══════════════════════════════════════
+
+  livesItem.classList.add('hidden');
+
+  buildFretboard();
+  buildButtons();
+  buildKeySelector();
+  updateScore();
+  nextQuestion();
+})();
+</script>
+</body>
+</html>
